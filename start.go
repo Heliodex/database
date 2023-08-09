@@ -1,13 +1,19 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 )
 
 func start() {
-	schema := schema()
+	log.Println("Reading database schema...")
+	schema := readSchema()
 
-	log.Print("Starting database server...")
-	fmt.Println(schema)
+	log.Println("Parsing database schema...")
+	// parsedSchema :=
+	parseSchema(schema)
+
+	// fmt.Println(parsedSchema)
+
+	log.Println("Starting database server...")
 }

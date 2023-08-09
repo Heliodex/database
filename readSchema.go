@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"strings"
 
@@ -16,9 +15,7 @@ type Definition struct {
 	Fields   []string
 }
 
-func schema() string {
-	log.Println("Reading database schema...")
-
+func readSchema() []Definition {
 	data, err := os.ReadFile("SCHEMA")
 	if err != nil {
 		log.Fatalln(c.InRed("Failed to read database schema: "), err)
@@ -29,7 +26,7 @@ func schema() string {
 	currentLine := -1
 
 	schemaError := func(error string) {
-		e := int(math.Max(0, float64(currentLine-2)))
+		e := max(0, currentLine-2)
 
 		// Show 5 lines of context
 		for i := 0; i < 5; i++ {
@@ -63,9 +60,9 @@ func schema() string {
 		return s
 	}
 
-	defs := []*Definition{}
+	defs := []Definition{}
 
-	// read lines from file
+	// Read lines from file
 	for {
 		line := next()
 		if line == "" {
@@ -86,7 +83,6 @@ func schema() string {
 				Name:     name,
 				Category: "unknown",
 			}
-			defs = append(defs, &def)
 
 			// Read the next line
 			line = peek()
@@ -95,30 +91,24 @@ func schema() string {
 				// The definition is empty
 				// An empty Enum is invalid, so it must be an empty Type
 				def.Category = "Type"
-				continue
-			}
-
-			if strings.Contains(strings.TrimSpace(line), " ") {
-				// The definition is an object Type, with fields
-				def.Category = "Type"
 			} else {
-				// It's a list of enum values
-				def.Category = "Enum"
+				if strings.Contains(strings.TrimSpace(line), " ") {
+					// The definition is an object Type, with fields
+					def.Category = "Type"
+				} else {
+					// It's a list of enum values
+					def.Category = "Enum"
+				}
+
+				// Save the contents of the block to parse later
+				for peek() != "" && peek()[0] == '\t' {
+					def.Fields = append(def.Fields, next()[1:])
+				}
 			}
 
-			// Save the contents of the block to parse later
-			for peek() != "" && peek()[0] == '\t' {
-				def.Fields = append(def.Fields, next()[1:])
-			}
+			defs = append(defs, def)
 		}
 	}
 
-	for _, def := range defs {
-		fmt.Println(def.Category, def.Name)
-		for _, field := range def.Fields {
-			fmt.Println("\t" + field)
-		}
-	}
-
-	return ""
+	return defs
 }
