@@ -18,7 +18,7 @@ type Definition struct {
 func readSchema() []Definition {
 	data, err := os.ReadFile("SCHEMA")
 	if err != nil {
-		log.Fatalln(c.InRed("Failed to read database schema: "), err)
+		log.Fatalln(c.InRed("Failed to load database schema: "), err)
 	}
 
 	lines := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
@@ -31,7 +31,7 @@ func readSchema() []Definition {
 		// Show 5 lines of context
 		for i := 0; i < 5; i++ {
 			log.Println(c.InCyan(fmt.Sprint(e+1)) + "\t" + c.InRed(lines[e]))
-			if (e) == currentLine {
+			if e == currentLine {
 				log.Println("\t" + c.InRed(strings.Repeat("^", len(lines[e]))))
 			}
 			e++
@@ -60,7 +60,7 @@ func readSchema() []Definition {
 		return s
 	}
 
-	defs := []Definition{}
+	var defs []Definition
 
 	// Read lines from file
 	for {
@@ -102,7 +102,7 @@ func readSchema() []Definition {
 
 				// Save the contents of the block to parse later
 				for peek() != "" && peek()[0] == '\t' {
-					def.Fields = append(def.Fields, next()[1:])
+					def.Fields = append(def.Fields, next())
 				}
 			}
 
