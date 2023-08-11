@@ -23,10 +23,13 @@ var PrimitiveTypes = map[string]Type{
 	"Date":   {Name: "Date", Primitive: true},
 }
 
+var unknownType = Type{Name: "Unknown", Primitive: true}
+
 type Field struct {
 	Name         string
 	TypeName     string
 	DefaultValue string
+	FunctionName string
 
 	Optional bool
 	Unique   bool
@@ -37,56 +40,45 @@ type Field struct {
 	Fields []Field
 }
 
-func parseFields(name string, fields []string, indent int) []Field {
+func parseFields(fields []string, indent int) []Field {
 	var parsedFields []Field
+	var previousField Field
 
 	for i := 0; i < len(fields); i++ {
 		currentField := Field{}
-		trimmedField := strings.TrimLeft(fields[i], "\t")
-		fieldSplit := strings.SplitN(trimmedField, " ", 3)
+		fieldSplit := strings.SplitN(strings.TrimLeft(fields[i], "\t"), " ", 3)
 
 		currentField.Name = fieldSplit[0]
 
 		if len(fieldSplit) < 2 {
-			var str string
-
-			if name != "" {
-				str = c.InUnderline(c.InRed(" on ")) +
-					c.InUnderline(c.InYellow(name))
-			}
-
 			log.Fatalln(c.InRed("Schema error: ") +
 				c.InUnderline(c.InRed("Field ")) +
-				c.InUnderline(c.InYellow(currentField.Name)) + str +
+				c.InUnderline(c.InYellow(currentField.Name)) +
 				c.InUnderline(c.InRed(" is missing a type, default value, or function")),
 			)
 		}
 
 		currentField.TypeName = strings.TrimRight(fieldSplit[1], "?!*+#")
+
 		_, primitiveType := PrimitiveTypes[currentField.TypeName]
 
 		var linkFields []string
 
-		fmt.Println(len(fields[i])-len(trimmedField), fields[i])
+		fmt.Println(previousField.TypeName, fields[i])
 
-		for len(fields[i])-len(trimmedField) > indent {
+		for len(fields[i])-len(strings.TrimLeft(fields[i], "\t")) > indent {
 			// This is the start of a set of Fields on a Link,
 			// find them by indentation and parse them into linkFields
-
-			previousFieldType := strings.TrimRight(strings.SplitN(strings.TrimLeft(fields[i], "\t"), " ", 2)[1], "?!*+#")
-			// BUG Doesn't work for primitive types as on Fields in Links
-
-			if _, e := PrimitiveTypes[previousFieldType]; e {
+			if _, e := PrimitiveTypes[previousField.TypeName]; e {
 				// Primitive types can't have links
-				log.Fatalln(c.InRed("Schema error: " + c.InUnderline(previousFieldType+" Type cannot have links")))
+				log.Fatalln(c.InRed("Schema error: " + c.InUnderline(previousField.TypeName+" Type cannot have links")))
 			}
 
-			i++
 			linkFields = append(linkFields, fields[i])
+			i++
 		}
 		if len(linkFields) > 0 {
-			// No name shows that this is a Link
-			currentField.Fields = parseFields("", linkFields, indent+1)
+			currentField.Fields = parseFields(linkFields, indent+1)
 		}
 
 		postfixes := strings.TrimLeft(fieldSplit[1], currentField.TypeName)
@@ -121,27 +113,33 @@ func parseFields(name string, fields []string, indent int) []Field {
 				currentField.Bind = true
 			}
 		}
-
+		
 		if len(fieldSplit) > 2 {
-			currentField.DefaultValue = fieldSplit[2]
+			if fieldSplit[2][0] == '&' {
+				// This is a generator function, stating how to
+				// generate the default value for this field
+				currentField.FunctionName = fieldSplit[2][1:]
+				fmt.Println(currentField.FunctionName)
+			} else {
+				currentField.DefaultValue = fieldSplit[2]
+			}
 		}
 
+		previousField = currentField
 	}
 
 	return parsedFields
 }
 
 func parseSchema(schema []Definition) []Type {
-	// fmt.Println(schema)
-
-	// map of Types and Enums
+	// Slice of object Types and Enums
 	var parsedSchema []Type
 
 	for _, def := range schema {
 		if def.Category == "Type" {
 			parsedSchema = append(parsedSchema, Type{
 				Name:   def.Name,
-				Fields: parseFields(def.Name, def.Fields, 1),
+				Fields: parseFields(def.Fields, 1),
 			})
 		} else {
 			for i, v := range def.Fields {
