@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	c "github.com/TwiN/go-color"
@@ -23,11 +25,12 @@ var PrimitiveTypes = map[string]Type{
 	"Date":   {Name: "Date", Primitive: true},
 }
 
-var unknownType = Type{Name: "Unknown", Primitive: true}
+var unknownType = Type{Name: " unknown ", Primitive: false}
 
 type Field struct {
 	Name         string
 	TypeName     string
+	Type         Type
 	DefaultValue string
 	FunctionName string
 
@@ -60,11 +63,15 @@ func parseFields(fields []string, indent int) []Field {
 
 		currentField.TypeName = strings.TrimRight(fieldSplit[1], "?!*+#")
 
-		_, primitiveType := PrimitiveTypes[currentField.TypeName]
+		primitiveType, primitive := PrimitiveTypes[currentField.TypeName]
+
+		if primitive {
+			currentField.Type = primitiveType
+		} else {
+			currentField.Type = unknownType
+		}
 
 		var linkFields []string
-
-		fmt.Println(previousField.TypeName, fields[i])
 
 		for len(fields[i])-len(strings.TrimLeft(fields[i], "\t")) > indent {
 			// This is the start of a set of Fields on a Link,
@@ -105,7 +112,7 @@ func parseFields(fields []string, indent int) []Field {
 				checkInvalidPostfix("?", "!")
 				currentField.Set = true
 			case '#':
-				if primitiveType {
+				if primitive {
 					// Primitive types can't have bindings either
 					log.Println(c.InRed("Invalid Type postfix:"), c.InYellow(string(postfix)))
 					log.Fatalln(c.InRed("Schema error: " + c.InUnderline(c.InYellow(currentField.TypeName)+c.InUnderline(c.InRed(" Type cannot have bindings, as it is not an Object type")))))
@@ -113,18 +120,18 @@ func parseFields(fields []string, indent int) []Field {
 				currentField.Bind = true
 			}
 		}
-		
-		if len(fieldSplit) > 2 {
+
+		if len(fieldSplit) > 2 && fieldSplit[2] != "" {
 			if fieldSplit[2][0] == '&' {
 				// This is a generator function, stating how to
 				// generate the default value for this field
 				currentField.FunctionName = fieldSplit[2][1:]
-				fmt.Println(currentField.FunctionName)
 			} else {
 				currentField.DefaultValue = fieldSplit[2]
 			}
 		}
 
+		parsedFields = append(parsedFields, currentField)
 		previousField = currentField
 	}
 
@@ -151,6 +158,73 @@ func parseSchema(schema []Definition) []Type {
 				Values: def.Fields,
 			})
 		}
+	}
+
+	getTypeByName := func(name string) (Type, error) {
+		for _, t := range parsedSchema {
+			if t.Name == name {
+				return t, nil
+			}
+		}
+		return Type{}, errors.New("Type not found")
+	}
+
+	var addTypes func([]Field, int)
+
+	addTypes = func(fields []Field, depth int) {
+		for _, f := range fields {
+
+			if f.Type.Name == unknownType.Name {
+				// This is a link to another type, find it and add it
+				t, err := getTypeByName(f.TypeName)
+				if err != nil {
+					log.Println(c.InRed("Schema error: " +
+						c.InUnderline(c.InRed("Type ")) +
+						c.InUnderline(c.InYellow(f.TypeName)) +
+						c.InUnderline(c.InRed(" not found "))))
+
+					log.Println(c.InRed("Valid Types are:"))
+					for _, t := range parsedSchema {
+						log.Println(c.InYellow("\t" + t.Name))
+					}
+					os.Exit(1)
+				}
+				f.Type = t
+			}
+
+			if len(f.Type.Values) > 0 && f.DefaultValue != "" {
+				// This is an Enum, make sure the default value is valid
+				var valid bool
+				for _, v := range f.Type.Values {
+					if v == f.DefaultValue {
+						valid = true
+						break
+					}
+				}
+				if !valid {
+					log.Println(c.InRed("Schema error: " +
+						c.InUnderline(c.InRed("Value ")) +
+						c.InUnderline(c.InYellow(f.DefaultValue)) +
+						c.InUnderline(c.InRed(" is not a valid default value for Enum Type ")) +
+						c.InUnderline(c.InYellow(f.TypeName))))
+
+					log.Println(c.InRed("Valid Values are:"))
+					for _, v := range f.Type.Values {
+						log.Println(c.InYellow("\t" + v))
+					}
+					os.Exit(1)
+				}
+			}
+
+			if len(f.Fields) > 0 {
+				addTypes(f.Fields, depth+1)
+			}
+		}
+	}
+
+	for _, t := range parsedSchema {
+		fmt.Println(t.Name)
+		addTypes(t.Fields, 1)
 	}
 
 	return parsedSchema
