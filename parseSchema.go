@@ -43,6 +43,28 @@ type Field struct {
 	Fields []Field
 }
 
+var DefaultFields = []Field{
+	{
+		Name:         "id",
+		TypeName:     "String",
+		Type:         PrimitiveTypes["String"],
+		FunctionName: "uuid",
+		Unique:       true,
+	},
+	{
+		Name:         "created",
+		TypeName:     "Date",
+		Type:         PrimitiveTypes["Date"],
+		FunctionName: "now",
+	},
+	{
+		Name:         "updated",
+		TypeName:     "Date",
+		Type:         PrimitiveTypes["Date"],
+		FunctionName: "now",
+	},
+}
+
 func parseFields(fields []string, indent int) []Field {
 	var parsedFields []Field
 	var previousField Field
@@ -173,7 +195,6 @@ func parseSchema(schema []Definition) []Type {
 
 	addTypes = func(fields []Field, depth int) {
 		for _, f := range fields {
-
 			if f.Type.Name == unknownType.Name {
 				// This is a link to another type, find it and add it
 				t, err := getTypeByName(f.TypeName)
@@ -190,6 +211,20 @@ func parseSchema(schema []Definition) []Type {
 					os.Exit(1)
 				}
 				f.Type = t
+
+				for _, v := range DefaultFields {
+					// Add default Fields to Link, if they don't already exist
+					var exists bool
+					for _, f := range f.Fields {
+						if f.Name == v.Name {
+							exists = true
+							break
+						}
+					}
+					if !exists {
+						f.Fields = append(f.Fields, v)
+					}
+				}
 			}
 
 			if len(f.Type.Values) > 0 && f.DefaultValue != "" {
@@ -216,6 +251,8 @@ func parseSchema(schema []Definition) []Type {
 				}
 			}
 
+			fmt.Println(strings.Repeat("\t", depth) + f.Name)
+
 			if len(f.Fields) > 0 {
 				addTypes(f.Fields, depth+1)
 			}
@@ -224,6 +261,23 @@ func parseSchema(schema []Definition) []Type {
 
 	for _, t := range parsedSchema {
 		fmt.Println(t.Name)
+
+		if len(t.Values) == 0 {
+			for _, v := range DefaultFields {
+				// Add default Fields to Link, if they don't already exist
+				var exists bool
+				for _, f := range t.Fields {
+					if f.Name == v.Name {
+						exists = true
+						break
+					}
+				}
+				if !exists {
+					t.Fields = append(t.Fields, v)
+				}
+			}
+		}
+
 		addTypes(t.Fields, 1)
 	}
 
