@@ -10,9 +10,9 @@ import (
 )
 
 type Definition struct {
-	Name     string
+	Name string
 	Category string
-	Fields   []string
+	Fields []string
 }
 
 func readSchema() []Definition {
@@ -80,7 +80,7 @@ func readSchema() []Definition {
 			}
 
 			def := Definition{
-				Name:     name,
+				Name: name,
 				Category: "unknown",
 			}
 

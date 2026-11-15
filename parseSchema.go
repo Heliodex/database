@@ -11,56 +11,56 @@ import (
 )
 
 type Type struct {
-	Name      string
+	Name string
 	Primitive bool
-	Fields    []Field
-	Values    []string
+	Fields []Field
+	Values []string
 }
 
 var PrimitiveTypes = map[string]Type{
 	"String": {Name: "String", Primitive: true},
-	"Int":    {Name: "Int", Primitive: true},
-	"Float":  {Name: "Float", Primitive: true},
-	"Bool":   {Name: "Bool", Primitive: true},
-	"Date":   {Name: "Date", Primitive: true},
+	"Int": {Name: "Int", Primitive: true},
+	"Float": {Name: "Float", Primitive: true},
+	"Bool": {Name: "Bool", Primitive: true},
+	"Date": {Name: "Date", Primitive: true},
 }
 
 var unknownType = Type{Name: " unknown ", Primitive: false}
 
 type Field struct {
-	Name         string
-	TypeName     string
-	Type         Type
+	Name string
+	TypeName string
+	Type Type
 	DefaultValue string
 	FunctionName string
 
 	Optional bool
-	Unique   bool
-	List     bool
-	Set      bool
-	Bind     bool
+	Unique bool
+	List bool
+	Set bool
+	Bind bool
 
 	Fields []Field
 }
 
 var DefaultFields = []Field{
 	{
-		Name:         "id",
-		TypeName:     "String",
-		Type:         PrimitiveTypes["String"],
+		Name: "id",
+		TypeName: "String",
+		Type: PrimitiveTypes["String"],
 		FunctionName: "uuid",
-		Unique:       true,
+		Unique: true,
 	},
 	{
-		Name:         "created",
-		TypeName:     "Date",
-		Type:         PrimitiveTypes["Date"],
+		Name: "created",
+		TypeName: "Date",
+		Type: PrimitiveTypes["Date"],
 		FunctionName: "now",
 	},
 	{
-		Name:         "updated",
-		TypeName:     "Date",
-		Type:         PrimitiveTypes["Date"],
+		Name: "updated",
+		TypeName: "Date",
+		Type: PrimitiveTypes["Date"],
 		FunctionName: "now",
 	},
 }
@@ -167,7 +167,7 @@ func parseSchema(schema []Definition) []Type {
 	for _, def := range schema {
 		if def.Category == "Type" {
 			parsedSchema = append(parsedSchema, Type{
-				Name:   def.Name,
+				Name: def.Name,
 				Fields: parseFields(def.Fields, 1),
 			})
 		} else {
@@ -176,7 +176,7 @@ func parseSchema(schema []Definition) []Type {
 			}
 
 			parsedSchema = append(parsedSchema, Type{
-				Name:   def.Name,
+				Name: def.Name,
 				Values: def.Fields,
 			})
 		}

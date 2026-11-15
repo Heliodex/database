@@ -12,12 +12,12 @@ const v = "0.0.0"
 
 func main() {
 	// This says "database" in unicode art I promise
-	fmt.Print(c.InRed("      ╭─▅▅"),  "                             ", c.InPurple("╭─▅▅")+"\n")
-	fmt.Print(c.InRed("      │ ██"),  "           ", c.InGreen("  ╭─██  "),  "          ", c.InPurple("│ ██ Version "), c.InRed(v)+"\n")
+	fmt.Print(c.InRed("      ╭─▅▅"), "                             ", c.InPurple("╭─▅▅")+"\n")
+	fmt.Print(c.InRed("      │ ██"), "           ", c.InGreen("  ╭─██  "), "          ", c.InPurple("│ ██ Version "), c.InRed(v)+"\n")
 	fmt.Print(c.InRed(" ╭─▅███▅██"), c.InYellow(" ╭─▅████▄█▌"), c.InGreen("╭─██████"), c.InBlue("╭─▅████▄█▌"), c.InPurple("│ ██▅███▄ "), c.InRed(" ╭─▅████▄█▌"), c.InYellow("╭▗▇█🮅█▆▖"), c.InGreen("╭─▅█🮅🮅█▅")+"\n")
 	fmt.Print(c.InRed("╭╯██▘─╮▝██"), c.InYellow("╭╯▐█▛─╮ ▜█▌"), c.InGreen("╰─╮ ██─┼"), c.InBlue("╯▐█▛─╮ ▜█▌"), c.InPurple("│ ██▘─╮▝██"), c.InRed("╭╯▐█▛─╮ ▜█▌"), c.InYellow("│▝█▙▄▃╮"), c.InGreen(" ╭╯██▄▄▄▄█▋")+"\n")
 	fmt.Print(c.InRed("│ ██▖ │▗██"), c.InYellow("│ ▐█▙ │ ▟█▌"), c.InGreen("  │ ██ "), c.InBlue("│ ▐█▙ │ ▟█▌"), c.InPurple("│ ██▖ │▗██"), c.InRed("│ ▐█▙ │ ▟█▌"), c.InYellow("╰╮ ▀▀▜█▖"), c.InGreen("│ ██🮂🮂🮂🮂🮂")+"\n")
-	fmt.Print(c.InRed("╰╮ ▀███▀██"), c.InYellow("╰╮ ▀████▀█▌"), c.InGreen("  │ ██ "), c.InBlue("╰╮ ▀████▀█▌"), c.InPurple("│ ██▀███▀╯"), c.InRed("╰╮ ▀████▀█▌")+ c.InYellow("╭▝🮅▆▆█▀"), c.InGreen("╰╮ 🮄█▆▆▆🮅")+"\n")
+	fmt.Print(c.InRed("╰╮ ▀███▀██"), c.InYellow("╰╮ ▀████▀█▌"), c.InGreen("  │ ██ "), c.InBlue("╰╮ ▀████▀█▌"), c.InPurple("│ ██▀███▀╯"), c.InRed("╰╮ ▀████▀█▌")+c.InYellow("╭▝🮅▆▆█▀"), c.InGreen("╰╮ 🮄█▆▆▆🮅")+"\n")
 	fmt.Print(c.InRed(" ╰───╨──╯ "), c.InYellow(" ╰─────╨─╯ "), c.InGreen("  ╰──╯  "), c.InBlue("╰─────╨─╯"), c.InPurple(" ╰──╨───╯  "), c.InRed(" ╰─────╨─╯ "), c.InYellow("╰─────╯"), c.InGreen("  ╰──────╯")+"\n")
 
 	if len(os.Args) < 2 {
