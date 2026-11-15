@@ -10,8 +10,7 @@ import (
 )
 
 type Definition struct {
-	Name string
-	Category string
+	Name, Category string
 	Fields []string
 }
 
@@ -22,9 +21,7 @@ func readSchema() []Definition {
 	}
 
 	lines := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
-
 	currentLine := -1
-
 	schemaError := func(error string) {
 		e := max(0, currentLine-2)
 
@@ -34,9 +31,9 @@ func readSchema() []Definition {
 			if e == currentLine {
 				log.Println("\t" + c.InRed(strings.Repeat("^", len(lines[e]))))
 			}
+
 			e++
 		}
-
 		log.Fatalln(c.InRed("Schema error: " + c.InUnderline(error)))
 	}
 
@@ -47,6 +44,7 @@ func readSchema() []Definition {
 		for currentLine < len(lines)-1 && strings.TrimSpace(lines[currentLine]) == "" {
 			currentLine++
 		}
+
 		if currentLine >= len(lines) {
 			return ""
 		}
@@ -57,6 +55,7 @@ func readSchema() []Definition {
 		e := currentLine
 		s := next()
 		currentLine = e
+
 		return s
 	}
 

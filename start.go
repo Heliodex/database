@@ -7,6 +7,7 @@ import (
 
 func start() {
 	log.Println("Reading database schema...")
+
 	schema := readSchema()
 
 	log.Println("Parsing database schema...")

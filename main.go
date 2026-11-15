@@ -19,18 +19,17 @@ func main() {
 	fmt.Print(c.InRed("│ ██▖ │▗██"), c.InYellow("│ ▐█▙ │ ▟█▌"), c.InGreen("  │ ██ "), c.InBlue("│ ▐█▙ │ ▟█▌"), c.InPurple("│ ██▖ │▗██"), c.InRed("│ ▐█▙ │ ▟█▌"), c.InYellow("╰╮ ▀▀▜█▖"), c.InGreen("│ ██🮂🮂🮂🮂🮂")+"\n")
 	fmt.Print(c.InRed("╰╮ ▀███▀██"), c.InYellow("╰╮ ▀████▀█▌"), c.InGreen("  │ ██ "), c.InBlue("╰╮ ▀████▀█▌"), c.InPurple("│ ██▀███▀╯"), c.InRed("╰╮ ▀████▀█▌")+c.InYellow("╭▝🮅▆▆█▀"), c.InGreen("╰╮ 🮄█▆▆▆🮅")+"\n")
 	fmt.Print(c.InRed(" ╰───╨──╯ "), c.InYellow(" ╰─────╨─╯ "), c.InGreen("  ╰──╯  "), c.InBlue("╰─────╨─╯"), c.InPurple(" ╰──╨───╯  "), c.InRed(" ╰─────╨─╯ "), c.InYellow("╰─────╯"), c.InGreen("  ╰──────╯")+"\n")
-
 	if len(os.Args) < 2 {
 		fmt.Println(c.InRed("No command specified. Run 'database help' for more information."))
 		os.Exit(1)
 	}
 
 	switch strings.ToLower(os.Args[1]) {
-	case "version", "v", "--version", "-v":
+	case "--version", "-v", "v", "version":
 		fmt.Println("Version", v)
-	case "help", "h", "--help", "-h":
+	case "--help", "-h", "h", "help":
 		help(v)
-	case "start", "s", "--start", "-s":
+	case "--start", "-s", "s", "start":
 		start()
 	default:
 		fmt.Println(c.InRed("Unknown command. Run 'database help' for more information."))
