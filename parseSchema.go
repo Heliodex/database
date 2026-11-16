@@ -94,8 +94,8 @@ func parseFields(fields []string, indent int) []Field {
 		}
 
 		currentField.TypeName = strings.TrimRight(fieldSplit[1], "?!*+#")
-
 		primitiveType, primitive := PrimitiveTypes[currentField.TypeName]
+
 		if primitive {
 			currentField.Type = primitiveType
 		} else {
