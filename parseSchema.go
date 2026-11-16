@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strings"
 
 	c "github.com/TwiN/go-color"
@@ -93,6 +94,7 @@ func parseFields(fields []string, indent int) []Field {
 		}
 
 		currentField.TypeName = strings.TrimRight(fieldSplit[1], "?!*+#")
+
 		primitiveType, primitive := PrimitiveTypes[currentField.TypeName]
 		if primitive {
 			currentField.Type = primitiveType
@@ -173,10 +175,8 @@ func parseFields(fields []string, indent int) []Field {
 	return parsedFields
 }
 
-func parseSchema(schema []Definition) []Type {
+func parseSchema(schema []Definition) (parsedSchema []Type) {
 	// Slice of object Types and Enums
-	var parsedSchema []Type
-
 	for _, def := range schema {
 		if def.Category == "Type" {
 			parsedSchema = append(parsedSchema, Type{
@@ -215,9 +215,11 @@ func parseSchema(schema []Definition) []Type {
 				if err != nil {
 					log.Println(c.InRed("Schema error: " + c.InUnderline(c.InRed("Type ")) + c.InUnderline(c.InYellow(f.TypeName)) + c.InUnderline(c.InRed(" not found "))))
 					log.Println(c.InRed("Valid Types are:"))
+
 					for _, t := range parsedSchema {
 						log.Println(c.InYellow("\t" + t.Name))
 					}
+
 					os.Exit(1)
 				}
 
@@ -244,23 +246,24 @@ func parseSchema(schema []Definition) []Type {
 				// This is an Enum, make sure the default value is valid
 				var valid bool
 
-				for _, v := range f.Type.Values {
-					if v == f.DefaultValue {
-						valid = true
-						break
-					}
+				if slices.Contains(f.Type.Values, f.DefaultValue) {
+					valid = true
 				}
 
 				if !valid {
 					log.Println(c.InRed("Schema error: " + c.InUnderline(c.InRed("Value ")) + c.InUnderline(c.InYellow(f.DefaultValue)) + c.InUnderline(c.InRed(" is not a valid default value for Enum Type ")) + c.InUnderline(c.InYellow(f.TypeName))))
 					log.Println(c.InRed("Valid Values are:"))
+
 					for _, v := range f.Type.Values {
 						log.Println(c.InYellow("\t" + v))
 					}
+
 					os.Exit(1)
 				}
 			}
+
 			fmt.Println(strings.Repeat("\t", depth) + f.Name)
+
 			if len(f.Fields) > 0 {
 				addTypes(f.Fields, depth+1)
 			}
@@ -269,6 +272,7 @@ func parseSchema(schema []Definition) []Type {
 
 	for _, t := range parsedSchema {
 		fmt.Println(t.Name)
+
 		if len(t.Values) == 0 {
 			for _, v := range DefaultFields {
 				// Add default Fields to Link, if they don't already exist
@@ -286,8 +290,9 @@ func parseSchema(schema []Definition) []Type {
 				}
 			}
 		}
+
 		addTypes(t.Fields, 1)
 	}
 
-	return parsedSchema
+	return
 }

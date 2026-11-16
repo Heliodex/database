@@ -15,6 +15,5 @@ func start() {
 	parseSchema(schema)
 
 	// fmt.Println(parsedSchema)
-
 	log.Println("Starting database server...")
 }

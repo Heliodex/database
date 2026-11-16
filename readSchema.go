@@ -14,7 +14,7 @@ type Definition struct {
 	Fields []string
 }
 
-func readSchema() []Definition {
+func readSchema() (defs []Definition) {
 	data, err := os.ReadFile("SCHEMA")
 	if err != nil {
 		log.Fatalln(c.InRed("Failed to load database schema: "), err)
@@ -28,12 +28,14 @@ func readSchema() []Definition {
 		// Show 5 lines of context
 		for i := 0; i < 5; i++ {
 			log.Println(c.InCyan(fmt.Sprint(e+1)) + "\t" + c.InRed(lines[e]))
+
 			if e == currentLine {
 				log.Println("\t" + c.InRed(strings.Repeat("^", len(lines[e]))))
 			}
 
 			e++
 		}
+
 		log.Fatalln(c.InRed("Schema error: " + c.InUnderline(error)))
 	}
 
@@ -59,8 +61,6 @@ func readSchema() []Definition {
 		return s
 	}
 
-	var defs []Definition
-
 	// Read lines from file
 	for {
 		line := next()
@@ -71,7 +71,6 @@ func readSchema() []Definition {
 		if line[0] != '\t' {
 			// Line is the beginning of a definition
 			// Could be either a type or an enum
-
 			name := strings.TrimSpace(line)
 			if strings.Contains(name, " ") {
 				log.Println(c.InRed("Invalid Type or Enum name:"), c.InYellow(name))
@@ -109,5 +108,5 @@ func readSchema() []Definition {
 		}
 	}
 
-	return defs
+	return
 }

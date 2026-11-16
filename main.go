@@ -19,6 +19,7 @@ func main() {
 	fmt.Print(c.InRed("│ ██▖ │▗██"), c.InYellow("│ ▐█▙ │ ▟█▌"), c.InGreen("  │ ██ "), c.InBlue("│ ▐█▙ │ ▟█▌"), c.InPurple("│ ██▖ │▗██"), c.InRed("│ ▐█▙ │ ▟█▌"), c.InYellow("╰╮ ▀▀▜█▖"), c.InGreen("│ ██🮂🮂🮂🮂🮂")+"\n")
 	fmt.Print(c.InRed("╰╮ ▀███▀██"), c.InYellow("╰╮ ▀████▀█▌"), c.InGreen("  │ ██ "), c.InBlue("╰╮ ▀████▀█▌"), c.InPurple("│ ██▀███▀╯"), c.InRed("╰╮ ▀████▀█▌")+c.InYellow("╭▝🮅▆▆█▀"), c.InGreen("╰╮ 🮄█▆▆▆🮅")+"\n")
 	fmt.Print(c.InRed(" ╰───╨──╯ "), c.InYellow(" ╰─────╨─╯ "), c.InGreen("  ╰──╯  "), c.InBlue("╰─────╨─╯"), c.InPurple(" ╰──╨───╯  "), c.InRed(" ╰─────╨─╯ "), c.InYellow("╰─────╯"), c.InGreen("  ╰──────╯")+"\n")
+
 	if len(os.Args) < 2 {
 		fmt.Println(c.InRed("No command specified. Run 'database help' for more information."))
 		os.Exit(1)
